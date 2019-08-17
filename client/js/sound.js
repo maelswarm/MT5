@@ -162,23 +162,28 @@ function init() {
         }
     });
 
+    let wasPlaying = false;
     $("#tracker").slider({
         range: 'min',
         min: 1,
         max: 10000,
         value: 1,
         slide: function (event, ui) {
-            if (!currentSong.paused) {
-                wasPaused = false;
-                currentSong.pause();
-            } else {
-                wasPaused = true;
-            }
             var totalTime = currentSong.getDuration();
             var startTime = totalTime * ((ui.value - 1) / 9999);
             currentSong.elapsedTimeSinceStart = startTime;
-            if (!wasPaused) {
-                playAllTracks(startTime);
+        },
+        start: function (event, ui) {
+            if (!currentSong.paused) {
+                wasPlaying = true;
+            } else {
+                wasPlaying = false;
+            }
+            pauseAllTracks();
+        },
+        stop: function (event, ui) {
+            if (wasPlaying) {
+                playAllTracks(currentSong.elapsedTimeSinceStart);
             }
         }
     });
@@ -210,9 +215,22 @@ function existsSelection() {
 }
 
 function loopOnOff() {
+    let wasPlaying = false;
     currentSong.toggleLoopMode();
     if (currentSong.loopMode) {
-        currentSong.elapsedTimeSinceStart = selectionForLoop.xStart;
+        if (!currentSong.paused) {
+            wasPlaying = true;
+        } else {
+            wasPlaying = false;
+        }
+        pauseAllTracks();
+        let totalTime = currentSong.getDuration();
+        currentSong.elapsedTimeSinceStart = (selectionForLoop.xStart / window.View.frontCanvas.width) * totalTime;
+        $("#tracker").slider('value', (selectionForLoop.xStart / window.View.frontCanvas.width) * 10000);
+        console.log((selectionForLoop.xStart / window.View.frontCanvas.width) * 10000);
+        if (wasPlaying) {
+            playAllTracks(currentSong.elapsedTimeSinceStart);
+        }
     }
     $("#loopOnOff").toggleClass("activated");
     console.log("LoopMode : " + currentSong.loopMode);
@@ -222,7 +240,8 @@ function setLoopStart() {
     if (!currentSong.paused) {
         selectionForLoop.xStart = currentXTimeline;
         // Switch xStart and xEnd if necessary, compute width of selection
-        $("#slider-range").slider('values', 0, (selectionForLoop.xStart / window.frontCanvas.width) * 10000);
+        $("#slider-range").slider('values', 0, (selectionForLoop.xStart / window.View.frontCanvas.width) * 10000);
+        $("#tracker").slider('value', (selectionForLoop.xStart / window.View.frontCanvas.width) * 10000);
         adjustSelectionMarkers();
     }
 }
@@ -231,7 +250,7 @@ function setLoopEnd() {
     if (!currentSong.paused) {
         selectionForLoop.xEnd = currentXTimeline;
         // Switch xStart and xEnd if necessary, compute width of selection
-        $$("#slider-range").slider('values', 1, (selectionForLoop.xEnd / window.frontCanvas.width) * 10000);
+        $$("#slider-range").slider('values', 1, (selectionForLoop.xEnd / window.View.frontCanvas.width) * 10000);
         adjustSelectionMarkers();
     }
 }
@@ -250,6 +269,7 @@ function initLoopABListeners() {
         var previousMousePos = getMousePos(window.View.frontCanvas, event);
         selectionForLoop.xStart = previousMousePos.x;
         $("#slider-range").slider('values', 0, (selectionForLoop.xStart / window.View.frontCanvas.width) * 10000);
+        $("#slider-range").slider('values', 1, (selectionForLoop.xStart / window.View.frontCanvas.width) * 10000);
 
         $("#" + View.frontCanvas.id).bind("mousemove", previousMousePos, function (event) {
             // calculate move angle minus the angle onclick
@@ -259,6 +279,10 @@ function initLoopABListeners() {
             //    + mousePos.x + ", " + mousePos.y +")");
             selectionForLoop.xEnd = mousePos.x;
             $("#slider-range").slider('values', 1, (selectionForLoop.xEnd / window.View.frontCanvas.width) * 10000);
+
+            if (selectionForLoop.xEnd < selectionForLoop.xStart) {
+                $("#slider-range").slider('values', 0, (selectionForLoop.xEnd / window.View.frontCanvas.width) * 10000);
+            }
 
             // Switch xStart and xEnd if necessary, compute width of selection
             adjustSelectionMarkers();
@@ -270,7 +294,9 @@ function initLoopABListeners() {
      */
     $("#" + View.frontCanvas.id).mouseup(function () {
         $("#" + View.frontCanvas.id).unbind("mousemove");
-
+        if (selectionForLoop.xEnd < selectionForLoop.xStart + 100 && currentSong.loopMode) {
+            loopOnOff();
+        }
     });
 }
 
@@ -469,13 +495,16 @@ function jumpTo(x) {
     //console.log("in jumpTo x = " + x);
     // width - totalTime
     // x - ?
-    stopAllTracks();
+    if (!currentSong.paused) {
+        pauseAllTracks();
+    }
     var totalTime = currentSong.getDuration();
     var startTime = totalTime * (x / window.View.frontCanvas.width);
     currentSong.elapsedTimeSinceStart = startTime;
 
-
-    playAllTracks(startTime);
+    if (!currentSong.paused) {
+        playAllTracks(startTime);
+    }
 }
 
 // A better function for displaying float numbers with a given number

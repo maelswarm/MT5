@@ -138,7 +138,7 @@ function Song(songName, context) {
             this.stop();
         } else {
             // else we start again from the previous position
-            this.play(this.elapsedTimeSinceStart);
+            //this.play(this.elapsedTimeSinceStart);
         }
     };
 
