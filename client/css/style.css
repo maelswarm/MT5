@@ -288,7 +288,7 @@ a[data-toggle=tab] {
     width: 1285px;
     height: 60px;
     position: absolute;
-    top: 188px;
+    top: 213px;
     background: transparent;
     flex-flow: column nowrap;
     justify-content: flex-end;
@@ -426,7 +426,7 @@ input.slider {
 .masterVolume {
     width: 190px;
     left: 40px;
-    top: 215px;
+    top: -25px;
 }
 
 
@@ -496,7 +496,11 @@ input.slider {
     height: 80px;
 }
 
-.glyphicon {
-    margin: 0;
-    padding: 0;
+.wrapper {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    min-width: 100vw;
+    min-height: 100vh;
 }

@@ -29,88 +29,91 @@
 </head>
 
 <body onload="init();">
-  <div class="masterVolume"></div>
-  <div id="app" style="margin-top:25px;">
-    <div id="masterTools" style="width: 1285px;">
-      <table>
-        <tr>
-          <td style="width:390px; text-align:center;">
-            <button id="bplay" onclick="playAllTracks(-1);" disabled type="button" class="btn btn-default btn-lg">
-              <span class="glyphicon glyphicon-play"></span>
-            </button>
+  <div class="wrapper">
+    <div id="app" style="margin-top:25px;">
+      <div id="masterTools" style="width: 1285px;">
+        <table>
+          <tr>
+            <td style="width:390px; text-align:center;">
+              <button id="bplay" onclick="playAllTracks(-1);" disabled type="button" class="btn btn-default btn-lg">
+                <span class="glyphicon glyphicon-play"></span>
+              </button>
 
-            <button id="bpause" onclick="pauseAllTracks();" disabled type="button" class="btn btn-default btn-lg">
-              <span class="glyphicon glyphicon-pause" style="margin-left: 3px"></span>
-            </button>
+              <button id="bpause" onclick="pauseAllTracks();" disabled type="button" class="btn btn-default btn-lg">
+                <span class="glyphicon glyphicon-pause" style="margin-left: 3px"></span>
+              </button>
 
-            <button id="bstop" onclick="stopAllTracks();" type="button" class="btn btn-default btn-lg"
-              style="display: none;" disabled>
-              <span class="glyphicon glyphicon-stop" style="margin-right: 3px"></span>
-            </button>
-            <!--<button id="bstop" onclick="addNewTrackForRecord();"  type="button" class="btn btn-default btn-lg" disabled>
+              <button id="bstop" onclick="stopAllTracks();" type="button" class="btn btn-default btn-lg"
+                style="display: none;" disabled>
+                <span class="glyphicon glyphicon-stop" style="margin-right: 3px"></span>
+              </button>
+              <!--<button id="bstop" onclick="addNewTrackForRecord();"  type="button" class="btn btn-default btn-lg" disabled>
                           <span class="glyphicon glyphicon-record"></span>
                         </button>-->
-            <button id="brecordMix" onclick="toggleRecordMix();" type="button" class="btn btn-default btn-lg"
-              disabled>SAVE<br>MIX
-            </button>
-          </td>
-          <td rowspan="2" style="width:900px; padding-left: 10px; padding-right: 10px;" valign="top">
-            <div id="titleArea">
-              This Is The Track with Title Area
-            </div>
-            <div id="subtitleArea">
-              Subtitle text area is here
-            </div>
-            <div id="additionalTextArea">
-              General text area where lots of additional writing and information can be included. General text area
-              where lots of additional writing and information can be included. General text area where lots of
-              additional writing and information can be included. General text area where lots of additional writing and
-              information can be included. General text area where lots of additional writing and information can be
-              included. General text area where lots of additional writing and information can be included.
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td id="loopBox" style="text-align:center;">
-            <button id="loopStart" onclick="setLoopStart();" type="button" class="btn btn-default btn-lg"
-              disabled>OPEN<br>LOOP
-            </button>
+              <button id="brecordMix" onclick="toggleRecordMix();" type="button" class="btn btn-default btn-lg"
+                disabled>SAVE<br>MIX
+              </button>
+            </td>
+            <td rowspan="2" style="width:900px; padding-left: 10px; padding-right: 10px;" valign="top">
+              <div id="titleArea">
+                This Is The Track with Title Area
+              </div>
+              <div id="subtitleArea">
+                Subtitle text area is here
+              </div>
+              <div id="additionalTextArea">
+                General text area where lots of additional writing and information can be included. General text area
+                where lots of additional writing and information can be included. General text area where lots of
+                additional writing and information can be included. General text area where lots of additional writing
+                and
+                information can be included. General text area where lots of additional writing and information can be
+                included. General text area where lots of additional writing and information can be included.
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td id="loopBox" style="text-align:center;">
+              <button id="loopStart" onclick="setLoopStart();" type="button" class="btn btn-default btn-lg"
+                disabled>OPEN<br>LOOP
+              </button>
 
-            <button id="loopEnd" onclick="setLoopEnd();" type="button" class="btn btn-default btn-lg"
-              disabled>CLOSE<br>LOOP
-            </button>
+              <button id="loopEnd" onclick="setLoopEnd();" type="button" class="btn btn-default btn-lg"
+                disabled>CLOSE<br>LOOP
+              </button>
 
-            <button id="loopReset" onclick="resetSelection();" type="button" class="btn btn-default btn-lg"
-              disabled>CLEAR<br>LOOP
-            </button>
+              <button id="loopReset" onclick="resetSelection();" type="button" class="btn btn-default btn-lg"
+                disabled>CLEAR<br>LOOP
+              </button>
 
-            <button onclick="loopOnOff();" id="loopOnOff" type="button" class="btn btn-default btn-lg"
-              disabled>LOOP<br>ON/OFF
-            </button>
-          </td>
-        </tr>
-      </table>
+              <button onclick="loopOnOff();" id="loopOnOff" type="button" class="btn btn-default btn-lg"
+                disabled>LOOP<br>ON/OFF
+              </button>
+            </td>
+          </tr>
+        </table>
+      </div>
     </div>
-  </div>
 
-  <div class="tracker-wrapper">
-    <div id="time"></div>
-    <div id="tracker"></div>
-    <div id="slider-range"></div>
-  </div>
-  <div id="scroll">
-    <span id="trackControl">
-      <table id="tracks">
-      </table>
-    </span>
-    <!--	Wave Form Layer	-->
-    <span id="myCanvass">
-      <canvas id="myCanvas" height="0" width="900"></canvas>
-    </span>
-    <!--	Scroll Cursor Layer	-->
-    <span id="canvass">
-      <canvas id="frontCanvas"></canvas>
-    </span>
+    <div class="tracker-wrapper">
+      <div id="time"></div>
+      <div id="tracker"></div>
+      <div id="slider-range"></div>
+    </div>
+    <div id="scroll">
+      <div class="masterVolume"></div>
+      <span id="trackControl">
+        <table id="tracks">
+        </table>
+      </span>
+      <!--	Wave Form Layer	-->
+      <span id="myCanvass">
+        <canvas id="myCanvas" height="0" width="900"></canvas>
+      </span>
+      <!--	Scroll Cursor Layer	-->
+      <span id="canvass">
+        <canvas id="frontCanvas"></canvas>
+      </span>
+    </div>
   </div>
 </body>
 
