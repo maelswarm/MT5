@@ -12,10 +12,5 @@ function addRangeListeners() {
   $('body').on("input", 'input[type="range"]', function () {
     var val = ($(this).val() - $(this).attr('min')) / ($(this).attr('max') - $(this).attr('min')) * 100;
     console.log("val = " + val);
-
-    var cssProp = 'linear-gradient(to right  , lightGreen, blue ' + val + '%, red)';
-    console.log(cssProp);
-
-    $(this).css('background-image', cssProp)
   });
 }

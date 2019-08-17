@@ -77,8 +77,8 @@ function init() {
             jumpTo(mousePos.x);
         }
     };
-    View.frontCanvas.addEventListener("mouseup", canvasTouch);
-    View.frontCanvas.addEventListener("touchend", canvasTouch);
+    View.frontCanvas.addEventListener("mousedown", canvasTouch);
+    View.frontCanvas.addEventListener("touchstart", canvasTouch);
 
     // Mouse listeners for loop selection
     initLoopABListeners();
@@ -139,13 +139,13 @@ function init() {
         setMasterVolume(e.target.value);
     });
 
-    // Get the list of the songs available on the server and build a
-    // drop down menu
-    loadSongList();
+
+    loadSong('Londres Appelle');
 
     animateTime();
 
     adjustSelectionMarkers();
+
 }
 
 function log(message) {
@@ -255,11 +255,6 @@ function initAudioContext() {
 function resetAllBeforeLoadingANewSong() {
     console.log('resetAllBeforeLoadingANewSong');
 
-    // disable the menu for selecting song: avoid downloading more than one song
-    // at the same time
-    var s = document.querySelector("#songSelect");
-    s.disabled = true;
-
     // reset the selection
     resetSelection();
 
@@ -326,10 +321,6 @@ function finishedLoading(bufferList) {
     $(".mute").attr("disabled", false);
     $(".solo").attr("disabled", false);
 
-    // enable song select menu
-    var s = document.querySelector("#songSelect");
-    s.disabled = false;
-
     // Set each track volume slider to max
     for (i = 0; i < currentSong.getNbTracks(); i++) {
         // set volume gain of track i to max (1)
@@ -342,49 +333,6 @@ function finishedLoading(bufferList) {
 
 
 // ######### SONGS
-function loadSongList() {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', "track", true);
-
-    // Menu for song selection
-    var s = $("<select id='songSelect'/>");
-    s.appendTo("#songs");
-
-    s.change(function (e) {
-        var songName = $(this).val();
-        console.log("You chose : " + songName);
-
-        if (songName !== "nochoice") {
-            // We load if there is no current song or if the current song is
-            // different than the one chosen
-            if ((currentSong === undefined) || ((currentSong !== undefined) && (songName !== currentSong.name))) {
-                loadSong(songName);
-                View.activeConsoleTab();
-            }
-        }
-    });
-
-    xhr.onload = function (e) {
-        var songList = JSON.parse(this.response);
-
-        if (songList[0]) {
-            $("<option />", {
-                value: "nochoice",
-                text: "Choose a song..."
-            }).appendTo(s);
-        }
-
-        songList.forEach(function (songName) {
-            console.log(songName);
-
-            $("<option />", {
-                value: songName,
-                text: songName
-            }).appendTo(s);
-        });
-    };
-    xhr.send();
-}
 
 
 // ##### TRACKS #####
@@ -471,8 +419,9 @@ function jumpTo(x) {
     // x - ?
     stopAllTracks();
     var totalTime = currentSong.getDuration();
-    var startTime = (x * totalTime) / window.View.frontCanvas.width;
+    var startTime = totalTime * (x / window.View.frontCanvas.width);
     currentSong.elapsedTimeSinceStart = startTime;
+
 
     playAllTracks(startTime);
 }
@@ -486,7 +435,6 @@ function toFixed(value, precision) {
 
 function animateTime() {
     // clear canvas
-    View.frontCanvasContext.clearRect(0, 0, window.View.masterCanvas.width, window.View.masterCanvas.height);
 
     // Draw something only if a song has been loaded
     if (currentSong !== undefined) {
@@ -496,6 +444,7 @@ function animateTime() {
         drawSelection();
 
         if (!currentSong.paused) {
+            View.frontCanvasContext.clearRect(0, 0, window.View.masterCanvas.width, window.View.masterCanvas.height);
             // Draw the time on the front canvas
             currentTime = context.currentTime;
             var delta = currentTime - lastTime;
@@ -716,7 +665,7 @@ function playAllTracks(startTime) {
     // Note : we memorise the current time, context.currentTime always
     // goes forward, it's a high precision timer
     lastTime = context.currentTime;
-
+    currentSong.paused = false;
     View.activeWaveTab();
 }
 
@@ -737,11 +686,12 @@ function stopAllTracks() {
     buttonPlay.disabled = false;
 
     // reset the elapsed time
-    currentSong.elapsedTimeSinceStart = 0;
+    //currentSong.elapsedTimeSinceStart = 0;
 }
 
 function pauseAllTracks() {
     currentSong.pause();
+    currentSong.paused = true;
     lastTime = context.currentTime;
     buttonPlay.style.display = '';
     buttonPause.style.display = '';
