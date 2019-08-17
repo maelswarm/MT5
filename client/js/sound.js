@@ -120,8 +120,8 @@ function init() {
         adjustSelectionMarkers();
     };
 
-    loopStart.addEventListener('mouseup', loopStartUp);
-    loopStart.addEventListener('touchend', loopStartUp);
+    loopStart.addEventListener('mousemove', loopStartUp);
+    loopStart.addEventListener('touchmove', loopStartUp);
 
     let loopEndUp = (e) => {
         selectionForLoop.xEnd = ((e.target.value - 1) / 9999) * window.View.frontCanvas.width;
@@ -131,8 +131,8 @@ function init() {
         }
         adjustSelectionMarkers();
     };
-    loopEnd.addEventListener('mouseup', loopEndUp);
-    loopEnd.addEventListener('touchend', loopEndUp);
+    loopEnd.addEventListener('mousemove', loopEndUp);
+    loopEnd.addEventListener('touchmove', loopEndUp);
 
 
     document.querySelector('.masterVolume').addEventListener('input', (e) => {
@@ -201,6 +201,7 @@ function initLoopABListeners() {
         resetSelection();
         var previousMousePos = getMousePos(window.View.frontCanvas, event);
         selectionForLoop.xStart = previousMousePos.x;
+        loopStart.value = (selectionForLoop.xStart / window.View.frontCanvas.width) * 10000;
 
         $("#" + View.frontCanvas.id).bind("mousemove", previousMousePos, function (event) {
             // calculate move angle minus the angle onclick
@@ -209,6 +210,7 @@ function initLoopABListeners() {
             //console.log("mousedrag from (" + previousMousePos.x + ", " + previousMousePos.y + ") to ("
             //    + mousePos.x + ", " + mousePos.y +")");
             selectionForLoop.xEnd = mousePos.x;
+            loopEnd.value = (selectionForLoop.xEnd / window.View.frontCanvas.width) * 10000;
 
             // Switch xStart and xEnd if necessary, compute width of selection
             adjustSelectionMarkers();
