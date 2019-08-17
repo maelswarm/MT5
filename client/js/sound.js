@@ -229,7 +229,7 @@ function setLoopEnd() {
     if (!currentSong.paused) {
         selectionForLoop.xEnd = currentXTimeline;
         // Switch xStart and xEnd if necessary, compute width of selection
-        $$("#slider-range").slider('values', 0, (selectionForLoop.xEnd / window.frontCanvas.width) * 10000);
+        $$("#slider-range").slider('values', 1, (selectionForLoop.xEnd / window.frontCanvas.width) * 10000);
         adjustSelectionMarkers();
     }
 }
