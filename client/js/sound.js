@@ -435,6 +435,7 @@ function toFixed(value, precision) {
 
 function animateTime() {
     // clear canvas
+    View.frontCanvasContext.clearRect(0, 0, window.View.masterCanvas.width, window.View.masterCanvas.height);
 
     // Draw something only if a song has been loaded
     if (currentSong !== undefined) {
@@ -443,8 +444,7 @@ function animateTime() {
         // Draw selection for loop
         drawSelection();
 
-        if (!currentSong.paused) {
-            View.frontCanvasContext.clearRect(0, 0, window.View.masterCanvas.width, window.View.masterCanvas.height);
+        if (1) {
             // Draw the time on the front canvas
             currentTime = context.currentTime;
             var delta = currentTime - lastTime;
@@ -475,8 +475,14 @@ function animateTime() {
                 View.frontCanvasContext.lineTo(currentXTimeline, window.View.masterCanvas.height);
                 View.frontCanvasContext.stroke();
 
-                currentSong.elapsedTimeSinceStart += delta;
-                lastTime = currentTime;
+                if (!currentSong.paused) {
+                    currentSong.elapsedTimeSinceStart += delta;
+                    lastTime = currentTime;
+                    let tracker = document.querySelector('.tracker-wrapper #tracker');
+                    let currTime = currentSong.elapsedTimeSinceStart / totalTime;
+                    tracker.value = currTime * 10000;
+                }
+                console.log(lastTime);
 
                 if (currentSong.loopMode) {
                     // Did we reach the end of the loop
@@ -498,11 +504,6 @@ function animateTime() {
                     // Stop the current song
                     stopAllTracks();
                 }
-
-                let tracker = document.querySelector('.tracker-wrapper #tracker');
-                let currTime = currentSong.elapsedTimeSinceStart / totalTime;
-                tracker.value = currTime * 10000;
-                console.log(tracker.value);
             }
         }
     } else {
