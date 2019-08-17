@@ -12,7 +12,7 @@ body {
 #console {
     position: fixed;
     top: 0;
-    height: 200px;
+    height: 210px;
     width: 302px;
     margin-left: 680px;
     text-align: center;
@@ -39,7 +39,7 @@ body {
 #masterTools {
     position: fixed;
     top: 0;
-    height: 200px;
+    height: 210px;
     width: 680px;
     text-align: center;
     background: #EEE;
@@ -81,7 +81,7 @@ body {
 
 #scroll {
     position: absolute;
-    top: 200px;
+    top: 300px;
     width: 980px;
     background: #EEE;
 }
@@ -215,3 +215,110 @@ output {
     height: 40px;
     font-size: 2em;
 }
+
+/* Brandon Barber Tracker Additions */
+
+.tracker-wrapper {
+    display: flex;
+    width: 982px;
+    height: 100px;
+    position: fixed;
+    top: 200px;
+    background: transparent;
+    flex-flow: column nowrap;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+input.slider {
+    width: 605px;
+    height: 25px;
+}
+
+  .tracker-wrapper  .slider:focus {
+    outline: none;
+  }
+  .tracker-wrapper  .slider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 10px;
+    cursor: pointer;
+    animate: 0.2s;
+    box-shadow: 1px 1px 1px #000000;
+    background: #3071A9;
+    border-radius: 5px;
+    border: 1px solid #000000;
+  }
+  .tracker-wrapper  .slider::-webkit-slider-thumb {
+    box-shadow: 1px 1px 1px #000000;
+    border: 1px solid #000000;
+    height: 30px;
+    width: 4px;
+    border-radius: 5px;
+    background: #FFFFFF;
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: -11px;
+  }
+  .tracker-wrapper  .slider:focus::-webkit-slider-runnable-track {
+    background: #3071A9;
+  }
+  .tracker-wrapper  .slider::-moz-range-track {
+    width: 100%;
+    height: 10px;
+    cursor: pointer;
+    animate: 0.2s;
+    box-shadow: 1px 1px 1px #000000;
+    background: #3071A9;
+    border-radius: 5px;
+    border: 1px solid #000000;
+  }
+  .tracker-wrapper  .slider::-moz-range-thumb {
+    box-shadow: 1px 1px 1px #000000;
+    border: 1px solid #000000;
+    height: 30px;
+    width: 4px;
+    border-radius: 5px;
+    background: #FFFFFF;
+    cursor: pointer;
+  }
+  .tracker-wrapper  .slider::-ms-track {
+    width: 100%;
+    height: 10px;
+    cursor: pointer;
+    animate: 0.2s;
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+  }
+  .tracker-wrapper .slider::-ms-fill-lower {
+    background: #3071A9;
+    border: 1px solid #000000;
+    border-radius: 10px;
+    box-shadow: 1px 1px 1px #000000;
+  }
+  .tracker-wrapper  .slider::-ms-fill-upper {
+    background: #3071A9;
+    border: 1px solid #000000;
+    border-radius: 10px;
+    box-shadow: 1px 1px 1px #000000;
+  }
+  .tracker-wrapper  .slider::-ms-thumb {
+    margin-top: 1px;
+    box-shadow: 1px 1px 1px #000000;
+    border: 1px solid #000000;
+    height: 30px;
+    width: 15px;
+    border-radius: 5px;
+    background: #FFFFFF;
+    cursor: pointer;
+  }
+  .tracker-wrapper .slider:focus::-ms-fill-lower {
+    background: #3071A9;
+  }
+  .tracker-wrapper  .slider:focus::-ms-fill-upper {
+    background: #3071A9;
+  }
+
+  #bpause {
+      display: none;
+  }

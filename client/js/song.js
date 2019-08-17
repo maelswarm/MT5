@@ -10,7 +10,7 @@ function Song(songName, context) {
     // master volume of this song
     this.volume = 1;
     // elapsed time (since beginning, in seconds (float))
-    this.elapsedTimeSinceStart;
+    this.elapsedTimeSinceStart = 0.0;
 
     // song is paused ?
     this.paused = true;
@@ -93,6 +93,7 @@ function Song(songName, context) {
     };
 
     this.play = function (startTime) {
+
         this.buildGraph();
 
         this.setTrackVolumesDependingOnMuteSoloStatus();
@@ -159,7 +160,7 @@ function Song(songName, context) {
             this.masterRecorderNode.stop();
 
             // We save the mix when we stop recording
-            this.saveSongAsWav(this.name + recIndex++ +".wav");
+            this.saveSongAsWav(this.name + recIndex++ + ".wav");
         } else {
             // start recording
             if (!this.masterRecorderNode)

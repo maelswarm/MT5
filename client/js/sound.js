@@ -8,7 +8,7 @@ var currentSong;
 // The audio context
 var context;
 
-var buttonPlay, buttonStop, buttonPause, buttonRecordMix;
+var buttonPlay, buttonStop, buttonPause, buttonRecordMix, loopStart, loopEnd, tracker;
 // List of tracks and mute buttons
 var divTrack;
 //The div where we display messages
@@ -19,8 +19,8 @@ var waveformDrawer;
 
 // zone selected for loop
 var selectionForLoop = {
-    xStart: -1,
-    xEnd: -1
+    xStart: 1,
+    xEnd: 2
 };
 
 
@@ -55,24 +55,30 @@ function init() {
     // Get handles on buttons
     buttonPlay = document.querySelector("#bplay");
     buttonPause = document.querySelector("#bpause");
-    buttonStop = document.querySelector("#bstop");
+    // buttonStop = document.querySelector("#bstop");
     buttonRecordMix = document.querySelector("#brecordMix");
 
     divTrack = document.getElementById("tracks");
     divConsole = document.querySelector("#messages");
 
+    loopStart = document.querySelector("#loop-start");
+    loopEnd = document.querySelector("#loop-end");
+
+    tracker = document.querySelector('.tracker-wrapper #tracker');
 
     // The waveform drawer
     waveformDrawer = new WaveformDrawer();
 
-    View.frontCanvas.addEventListener("mouseup", function (event) {
+    function canvasTouch(event) {
         if (!existsSelection()) {
             console.log("mouse click on canvas, let's jump to another position in the song");
             var mousePos = getMousePos(window.View.frontCanvas, event);
             // will compute time from mouse pos and start playing from there...
             jumpTo(mousePos.x);
         }
-    });
+    };
+    View.frontCanvas.addEventListener("mouseup", canvasTouch);
+    View.frontCanvas.addEventListener("touchend", canvasTouch);
 
     // Mouse listeners for loop selection
     initLoopABListeners();
@@ -84,12 +90,62 @@ function init() {
     context = initAudioContext();
 
 
+    // tracker
+    let trackerTouchDown = (e) => {
+        currentSong.stop();
+    };
+
+    tracker.addEventListener('mousedown', trackerTouchDown);
+    tracker.addEventListener('touchstart', trackerTouchDown);
+
+    let trackerTouchUp = (e) => {
+        var totalTime = currentSong.getDuration();
+        var startTime = totalTime * ((e.target.value - 1) / 9999);
+        currentSong.elapsedTimeSinceStart = startTime;
+        playAllTracks(startTime);
+    };
+
+    tracker.addEventListener('mouseup', trackerTouchUp);
+    tracker.addEventListener('touchend', trackerTouchUp);
+
+
+    // loop sliders
+
+    let loopStartUp = (e) => {
+        selectionForLoop.xStart = ((e.target.value - 1) / 9999) * window.View.frontCanvas.width;
+        if (selectionForLoop.xEnd < selectionForLoop.xStart) {
+            selectionForLoop.xEnd = selectionForLoop.xStart;
+            loopEnd.value = loopStart.value;
+        }
+        adjustSelectionMarkers();
+    };
+
+    loopStart.addEventListener('mouseup', loopStartUp);
+    loopStart.addEventListener('touchend', loopStartUp);
+
+    let loopEndUp = (e) => {
+        selectionForLoop.xEnd = ((e.target.value - 1) / 9999) * window.View.frontCanvas.width;
+        if (selectionForLoop.xEnd < selectionForLoop.xStart) {
+            selectionForLoop.xStart = selectionForLoop.xEnd;
+            loopStart.value = loopEnd.value;
+        }
+        adjustSelectionMarkers();
+    };
+    loopEnd.addEventListener('mouseup', loopEndUp);
+    loopEnd.addEventListener('touchend', loopEndUp);
+
+
+    document.querySelector('.masterVolume').addEventListener('input', (e) => {
+        setMasterVolume(e.target.value);
+    });
 
     // Get the list of the songs available on the server and build a
     // drop down menu
     loadSongList();
 
     animateTime();
+
+    adjustSelectionMarkers();
 }
 
 function log(message) {
@@ -134,8 +190,8 @@ function setLoopEnd() {
 
 function resetSelection() {
     selectionForLoop = {
-        xStart: -1,
-        xEnd: -1
+        xStart: 0,
+        xEnd: 0
     };
 }
 
@@ -187,13 +243,13 @@ function initAudioContext() {
 
     var ctx = new audioContext();
 
-    if(ctx === undefined) {
+    if (ctx === undefined) {
         throw new Error('AudioContext is not supported. :(');
     }
 
     return ctx;
 }
-    // SOUNDS AUDIO ETC.
+// SOUNDS AUDIO ETC.
 
 
 function resetAllBeforeLoadingANewSong() {
@@ -493,6 +549,11 @@ function animateTime() {
                     // Stop the current song
                     stopAllTracks();
                 }
+
+                let tracker = document.querySelector('.tracker-wrapper #tracker');
+                let currTime = currentSong.elapsedTimeSinceStart / totalTime;
+                tracker.value = currTime * 10000;
+                console.log(tracker.value);
             }
         }
     } else {
@@ -616,12 +677,17 @@ function clearAllSampleDrawings() {
 }
 
 
+
 function playAllTracks(startTime) {
     // First : build the web audio graph
     //currentSong.buildGraph();
 
     // Read current master volume slider position and set the volume
     setMasterVolume();
+
+    if (startTime === -1) {
+        startTime = currentSong.elapsedTimeSinceStart;
+    }
 
     // Starts playing
     currentSong.play(startTime);
@@ -641,9 +707,11 @@ function playAllTracks(startTime) {
     //$(".solo").attr("disabled", false);
 
     // Set play/stop/pause buttons' states
-    buttonPlay.disabled = true;
-    buttonStop.disabled = false;
+    buttonPlay.disabled = false;
+    //buttonStop.disabled = false;
     buttonPause.disabled = false;
+    buttonPlay.style.display = 'none';
+    buttonPause.style.display = 'inline-block';
 
     // Note : we memorise the current time, context.currentTime always
     // goes forward, it's a high precision timer
@@ -664,7 +732,7 @@ function stopAllTracks() {
     currentSong.stop();
 
     // update gui's state
-    buttonStop.disabled = true;
+    //buttonStop.disabled = true;
     buttonPause.disabled = true;
     buttonPlay.disabled = false;
 
@@ -675,6 +743,8 @@ function stopAllTracks() {
 function pauseAllTracks() {
     currentSong.pause();
     lastTime = context.currentTime;
+    buttonPlay.style.display = '';
+    buttonPause.style.display = '';
 }
 
 // The next function can be called two ways :
