@@ -444,66 +444,64 @@ function animateTime() {
         // Draw selection for loop
         drawSelection();
 
-        if (1) {
-            // Draw the time on the front canvas
-            currentTime = context.currentTime;
-            var delta = currentTime - lastTime;
+        // Draw the time on the front canvas
+        currentTime = context.currentTime;
+        var delta = currentTime - lastTime;
 
 
-            var totalTime;
+        var totalTime;
 
-            View.frontCanvasContext.fillStyle = 'white';
-            View.frontCanvasContext.font = '14pt Arial';
-            //View.frontCanvasContext.fillText(toFixed(currentSong.elapsedTimeSinceStart, 1) + "s", 180, 20);
-            View.frontCanvasContext.fillText((currentSong.elapsedTimeSinceStart + "").toFormattedTime() + "s", 180, 20);
-            //console.log("dans animate");
+        View.frontCanvasContext.fillStyle = 'white';
+        View.frontCanvasContext.font = '14pt Arial';
+        //View.frontCanvasContext.fillText(toFixed(currentSong.elapsedTimeSinceStart, 1) + "s", 180, 20);
+        View.frontCanvasContext.fillText((currentSong.elapsedTimeSinceStart + "").toFormattedTime() + "s", 180, 20);
+        //console.log("dans animate");
 
-            // at least one track has been loaded
-            if (currentSong.decodedAudioBuffers[0] !== undefined) {
+        // at least one track has been loaded
+        if (currentSong.decodedAudioBuffers[0] !== undefined) {
 
-                totalTime = currentSong.getDuration();
-                currentXTimeline = currentSong.elapsedTimeSinceStart * window.View.masterCanvas.width / totalTime;
+            totalTime = currentSong.getDuration();
+            currentXTimeline = currentSong.elapsedTimeSinceStart * window.View.masterCanvas.width / totalTime;
 
-                // draw frequencies that dance with the music
-                drawFrequencies();
+            // draw frequencies that dance with the music
+            drawFrequencies();
 
-                // Draw time bar
-                View.frontCanvasContext.strokeStyle = "white";
-                View.frontCanvasContext.lineWidth = 3;
-                View.frontCanvasContext.beginPath();
-                View.frontCanvasContext.moveTo(currentXTimeline, 0);
-                View.frontCanvasContext.lineTo(currentXTimeline, window.View.masterCanvas.height);
-                View.frontCanvasContext.stroke();
+            // Draw time bar
+            View.frontCanvasContext.strokeStyle = "white";
+            View.frontCanvasContext.lineWidth = 3;
+            View.frontCanvasContext.beginPath();
+            View.frontCanvasContext.moveTo(currentXTimeline, 0);
+            View.frontCanvasContext.lineTo(currentXTimeline, window.View.masterCanvas.height);
+            View.frontCanvasContext.stroke();
 
-                if (!currentSong.paused) {
-                    currentSong.elapsedTimeSinceStart += delta;
-                    lastTime = currentTime;
-                    let tracker = document.querySelector('.tracker-wrapper #tracker');
-                    let currTime = currentSong.elapsedTimeSinceStart / totalTime;
-                    tracker.value = currTime * 10000;
-                }
-                console.log(lastTime);
+            if (!currentSong.paused) {
+                currentSong.elapsedTimeSinceStart += delta;
+                lastTime = currentTime;
+                let tracker = document.querySelector('.tracker-wrapper #tracker');
+                let currTime = currentSong.elapsedTimeSinceStart / totalTime;
+                tracker.value = currTime * 10000;
+            }
+            console.log(lastTime);
 
-                if (currentSong.loopMode) {
-                    // Did we reach the end of the loop
-                    if (existsSelection()) {
-                        if (currentXTimeline > selectionForLoop.xEnd) {
-                            jumpTo(selectionForLoop.xStart);
-                        }
+            if (currentSong.loopMode) {
+                // Did we reach the end of the loop
+                if (existsSelection()) {
+                    if (currentXTimeline > selectionForLoop.xEnd) {
+                        jumpTo(selectionForLoop.xStart);
                     }
                 }
+            }
 
-                // Did we reach the end of the song ?
-                if (currentSong.elapsedTimeSinceStart > currentSong.getDuration()) {
-                    // Clear the console log and display it
-                    clearLog();
-                    log("Song's finished, press Start again,");
-                    log("or click in the middle of the song,");
-                    log("or load another song...");
+            // Did we reach the end of the song ?
+            if (currentSong.elapsedTimeSinceStart > currentSong.getDuration()) {
+                // Clear the console log and display it
+                clearLog();
+                log("Song's finished, press Start again,");
+                log("or click in the middle of the song,");
+                log("or load another song...");
 
-                    // Stop the current song
-                    stopAllTracks();
-                }
+                // Stop the current song
+                stopAllTracks();
             }
         }
     } else {
