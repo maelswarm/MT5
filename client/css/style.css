@@ -81,7 +81,7 @@ body {
 
 #scroll {
     position: absolute;
-    top: 300px;
+    top: 292px;
     width: 980px;
     background: #EEE;
 }
@@ -161,6 +161,12 @@ a[data-toggle=tab] {
     width: 170px;
 }
 
+.masterVolume {
+    position: absolute;
+    left: -15px;
+    top: 245px;
+}
+
 /***** for sliders *****/
 
 body {
@@ -221,7 +227,7 @@ output {
 .tracker-wrapper {
     display: flex;
     width: 982px;
-    height: 100px;
+    height: 92px;
     position: fixed;
     top: 200px;
     background: transparent;
@@ -322,3 +328,38 @@ input.slider {
   #bpause {
       display: none;
   }
+
+  #slider-range, #tracker {
+    width: 602px;
+  }
+
+  .ui-slider .ui-widget-header {
+    border: 1px solid #dddddd;
+    background: #837;
+    color: #333333;
+    font-weight: bold;
+}
+
+.ui-slider-horizontal {
+    height: 18px;
+}
+
+.ui-slider .ui-slider-handle {
+    position: absolute;
+    z-index: 2;
+    width: 1.2em;
+    height: 15px;
+    cursor: default;
+    -ms-touch-action: none;
+    touch-action: none;
+}
+
+.ui-slider-horizontal .ui-slider-handle {
+    top: 0px;
+    margin-left: -.6em;
+}
+
+#time {
+    color: white;
+    font-size: 16px;
+}

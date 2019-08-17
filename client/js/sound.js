@@ -52,6 +52,43 @@ function init() {
 
     View.init();
 
+
+    //init loop slider
+
+    $("#slider-range").slider({
+        range: true,
+        min: 1,
+        max: 10000,
+        values: [1, 10000],
+        slide: function (event, ui) {
+            // slide ui.values[ 0 ] + " - $" + ui.values[ 1 ]
+            selectionForLoop.xStart = ((ui.values[0] - 1) / 9999) * window.View.frontCanvas.width;
+            selectionForLoop.xEnd = ((ui.values[1] - 1) / 9999) * window.View.frontCanvas.width;
+            adjustSelectionMarkers();
+        }
+    });
+
+    $("#tracker").slider({
+        range: 'min',
+        min: 1,
+        max: 10000,
+        value: 0,
+        slide: function (event, ui) {
+            if (!currentSong.paused) {
+                wasPaused = false;
+                currentSong.pause();
+            } else {
+                wasPaused = true;
+            }
+            var totalTime = currentSong.getDuration();
+            var startTime = totalTime * ((ui.value - 1) / 9999);
+            currentSong.elapsedTimeSinceStart = startTime;
+            if (!wasPaused) {
+                playAllTracks(startTime);
+            }
+        }
+    });
+
     // Get handles on buttons
     buttonPlay = document.querySelector("#bplay");
     buttonPause = document.querySelector("#bpause");
@@ -60,11 +97,6 @@ function init() {
 
     divTrack = document.getElementById("tracks");
     divConsole = document.querySelector("#messages");
-
-    loopStart = document.querySelector("#loop-start");
-    loopEnd = document.querySelector("#loop-end");
-
-    tracker = document.querySelector('.tracker-wrapper #tracker');
 
     // The waveform drawer
     waveformDrawer = new WaveformDrawer();
@@ -89,50 +121,59 @@ function init() {
     // Init audio context
     context = initAudioContext();
 
+    // let wasPaused = false;
+    // // tracker
+    // let trackerTouchDown = (e) => {
+    //     if (!currentSong.paused) {
+    //         wasPaused = false;
+    //         currentSong.pause();
+    //     } else {
+    //         wasPaused = true;
+    //     }
+    // };
 
-    // tracker
-    let trackerTouchDown = (e) => {
-        currentSong.stop();
-    };
+    // tracker.addEventListener('mousedown', trackerTouchDown);
+    // tracker.addEventListener('touchstart', trackerTouchDown);
 
-    tracker.addEventListener('mousedown', trackerTouchDown);
-    tracker.addEventListener('touchstart', trackerTouchDown);
+    // let trackerTouchUp = (e) => {
+    //     var totalTime = currentSong.getDuration();
+    //     var startTime = totalTime * ((e.target.value - 1) / 9999);
+    //     currentSong.elapsedTimeSinceStart = startTime;
+    //     if (!wasPaused) {
+    //         playAllTracks(startTime);
+    //     }
+    // };
 
-    let trackerTouchUp = (e) => {
-        var totalTime = currentSong.getDuration();
-        var startTime = totalTime * ((e.target.value - 1) / 9999);
-        currentSong.elapsedTimeSinceStart = startTime;
-        playAllTracks(startTime);
-    };
-
-    tracker.addEventListener('mouseup', trackerTouchUp);
-    tracker.addEventListener('touchend', trackerTouchUp);
+    // tracker.addEventListener('mouseup', trackerTouchUp);
+    // tracker.addEventListener('touchend', trackerTouchUp);
 
 
-    // loop sliders
+    // // loop sliders
 
-    let loopStartUp = (e) => {
-        selectionForLoop.xStart = ((e.target.value - 1) / 9999) * window.View.frontCanvas.width;
-        if (selectionForLoop.xEnd < selectionForLoop.xStart) {
-            selectionForLoop.xEnd = selectionForLoop.xStart;
-            loopEnd.value = loopStart.value;
-        }
-        adjustSelectionMarkers();
-    };
+    // let loopStartUp = (e) => {
+    //     selectionForLoop.xStart = ((e.target.value - 1) / 9999) * window.View.frontCanvas.width;
+    //     if (selectionForLoop.xEnd < selectionForLoop.xStart) {
+    //         selectionForLoop.xStart = selectionForLoop.xEnd;
+    //         loopStart.value = loopEnd.value;
+    //         return;
+    //     }
+    //     adjustSelectionMarkers();
+    // };
 
-    loopStart.addEventListener('mousemove', loopStartUp);
-    loopStart.addEventListener('touchmove', loopStartUp);
+    // loopStart.addEventListener('mousemove', loopStartUp);
+    // loopStart.addEventListener('touchmove', loopStartUp);
 
-    let loopEndUp = (e) => {
-        selectionForLoop.xEnd = ((e.target.value - 1) / 9999) * window.View.frontCanvas.width;
-        if (selectionForLoop.xEnd < selectionForLoop.xStart) {
-            selectionForLoop.xStart = selectionForLoop.xEnd;
-            loopStart.value = loopEnd.value;
-        }
-        adjustSelectionMarkers();
-    };
-    loopEnd.addEventListener('mousemove', loopEndUp);
-    loopEnd.addEventListener('touchmove', loopEndUp);
+    // let loopEndUp = (e) => {
+    //     selectionForLoop.xEnd = ((e.target.value - 1) / 9999) * window.View.frontCanvas.width; //wall slider //not autop[lay] // loop jump to start of loop //
+    //     if (selectionForLoop.xEnd < selectionForLoop.xStart) {
+    //         selectionForLoop.xEnd = selectionForLoop.xStart;
+    //         loopEnd.value = loopStart.value;
+    //         return;
+    //     }
+    //     adjustSelectionMarkers();
+    // };
+    // loopEnd.addEventListener('mousemove', loopEndUp);
+    // loopEnd.addEventListener('touchmove', loopEndUp);
 
 
     document.querySelector('.masterVolume').addEventListener('input', (e) => {
@@ -168,6 +209,9 @@ function existsSelection() {
 
 function loopOnOff() {
     currentSong.toggleLoopMode();
+    if (currentSong.loopMode) {
+        currentSong.elapsedTimeSinceStart = selectionForLoop.xStart;
+    }
     $("#loopOnOff").toggleClass("activated");
     console.log("LoopMode : " + currentSong.loopMode);
 }
@@ -176,6 +220,7 @@ function setLoopStart() {
     if (!currentSong.paused) {
         selectionForLoop.xStart = currentXTimeline;
         // Switch xStart and xEnd if necessary, compute width of selection
+        $("#slider-range").slider('values', 0, (selectionForLoop.xStart / window.frontCanvas.width) * 10000);
         adjustSelectionMarkers();
     }
 }
@@ -184,6 +229,7 @@ function setLoopEnd() {
     if (!currentSong.paused) {
         selectionForLoop.xEnd = currentXTimeline;
         // Switch xStart and xEnd if necessary, compute width of selection
+        $$("#slider-range").slider('values', 0, (selectionForLoop.xEnd / window.frontCanvas.width) * 10000);
         adjustSelectionMarkers();
     }
 }
@@ -197,11 +243,11 @@ function resetSelection() {
 
 function initLoopABListeners() {
     // For loop A/B selection
-    $("#" + View.frontCanvas.id).mousedown(function (event) {
+    $("#" + View.frontCanvas.id).mousedown(function (event) { //text from cnvas to div
         resetSelection();
         var previousMousePos = getMousePos(window.View.frontCanvas, event);
         selectionForLoop.xStart = previousMousePos.x;
-        loopStart.value = (selectionForLoop.xStart / window.View.frontCanvas.width) * 10000;
+        $("#slider-range").slider('values', 0, (selectionForLoop.xStart / window.View.frontCanvas.width) * 10000);
 
         $("#" + View.frontCanvas.id).bind("mousemove", previousMousePos, function (event) {
             // calculate move angle minus the angle onclick
@@ -210,7 +256,7 @@ function initLoopABListeners() {
             //console.log("mousedrag from (" + previousMousePos.x + ", " + previousMousePos.y + ") to ("
             //    + mousePos.x + ", " + mousePos.y +")");
             selectionForLoop.xEnd = mousePos.x;
-            loopEnd.value = (selectionForLoop.xEnd / window.View.frontCanvas.width) * 10000;
+            $("#slider-range").slider('values', 1, (selectionForLoop.xEnd / window.View.frontCanvas.width) * 10000);
 
             // Switch xStart and xEnd if necessary, compute width of selection
             adjustSelectionMarkers();
@@ -453,10 +499,11 @@ function animateTime() {
 
         var totalTime;
 
-        View.frontCanvasContext.fillStyle = 'white';
-        View.frontCanvasContext.font = '14pt Arial';
-        //View.frontCanvasContext.fillText(toFixed(currentSong.elapsedTimeSinceStart, 1) + "s", 180, 20);
-        View.frontCanvasContext.fillText((currentSong.elapsedTimeSinceStart + "").toFormattedTime() + "s", 180, 20);
+        // View.frontCanvasContext.fillStyle = 'white';
+        // View.frontCanvasContext.font = '14pt Arial';
+        // //View.frontCanvasContext.fillText(toFixed(currentSong.elapsedTimeSinceStart, 1) + "s", 180, 20);
+        // View.frontCanvasContext.fillText((currentSong.elapsedTimeSinceStart + "").toFormattedTime() + "s", 180, 20);
+        document.querySelector('#time').innerHTML = (currentSong.elapsedTimeSinceStart + "").toFormattedTime() + "s";
         //console.log("dans animate");
 
         // at least one track has been loaded
@@ -479,9 +526,9 @@ function animateTime() {
             if (!currentSong.paused) {
                 currentSong.elapsedTimeSinceStart += delta;
                 lastTime = currentTime;
-                let tracker = document.querySelector('.tracker-wrapper #tracker');
                 let currTime = currentSong.elapsedTimeSinceStart / totalTime;
-                tracker.value = currTime * 10000;
+                $("#tracker").slider('value', currTime * 10000);
+
             }
             console.log(lastTime);
 
