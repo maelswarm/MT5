@@ -9,7 +9,7 @@ function BufferLoader(context, urlList, callback, callbackDraw) {
 
 BufferLoader.prototype.loadBuffer = function (url, index) {
   // Load buffer asynchronously
-  console.log('file : ' + url + "loading and decoding");
+  //  console.log('file : ' + url + "loading and decoding");
 
   var request = new XMLHttpRequest();
   request.open("GET", url, true);
@@ -24,8 +24,7 @@ BufferLoader.prototype.loadBuffer = function (url, index) {
     loader.context.decodeAudioData(
       request.response,
       function (buffer) {
-        log("Loaded and decoded track " + (loader.loadCount + 1) +
-          "/" + loader.urlList.length + "...");
+        //        log("Loaded and decoded track " + (loader.loadCount + 1) + "/" + loader.urlList.length + "...");
 
         if (!buffer) {
           alert('error decoding file data: ' + url);
@@ -53,9 +52,9 @@ BufferLoader.prototype.loadBuffer = function (url, index) {
       //var percent = (e.loaded * 100) / e.total;
 
       //console.log("loaded " + percent  + "of song " + index);
-      var progress = document.querySelector("#progress" + index);
+      /*var progress = document.querySelector("#progress" + index);
       progress.value = e.loaded;
-      progress.max = e.total;
+      progress.max = e.total;*/
     }
   };
 
@@ -71,8 +70,8 @@ BufferLoader.prototype.load = function () {
   this.bufferList = [];
   this.loadCount = 0;
   clearLog();
-  log("Loading tracks... please wait...");
-  console.log("BufferLoader.prototype.load urlList size = " + this.urlList.length);
+  //  log("Loading tracks... please wait...");
+  //  console.log("BufferLoader.prototype.load urlList size = " + this.urlList.length);
   for (var i = 0; i < this.urlList.length; ++i)
     this.loadBuffer(this.urlList[i], i);
 };

@@ -8,8 +8,8 @@ function View() {
     this.masterCanvasContext;
     this.frontCanvas = "frontCanvas"; // the canvas where we draw the time
     this.frontCanvasContext;
-    this.waveCanvas = "waveCanvas"; //the canvas where we draw the animation wave of the song
-    this.waveCanvasContext;
+    //    this.waveCanvas = "waveCanvas"; //the canvas where we draw the animation wave of the song
+    //    this.waveCanvasContext;
     this.songs = "songs"; //choice list of all the songs
     this.knobMasterVolume = "masterVolume"; // the canvas representing the master volume slider
     this.mute = "bsound"; // button to mute unmute the current song volume
@@ -36,8 +36,8 @@ function View() {
         this.frontCanvas.height = window.View.masterCanvas.height;
         this.frontCanvas.width = window.View.masterCanvas.width;
 
-        this.waveCanvas = document.getElementById(this.waveCanvas);
-        this.waveCanvasContext = this.waveCanvas.getContext('2d');
+        //        this.waveCanvas = document.getElementById(this.waveCanvas);
+        //        this.waveCanvasContext = this.waveCanvas.getContext('2d');
         this.songs = document.getElementById(this.songs);
         this.knobMasterVolume = document.getElementById(this.knobMasterVolume);
         this.mute = document.getElementById(this.mute);
@@ -55,23 +55,23 @@ function View() {
     }
 
     // print the controls of a song's track (name,mute,solo and progress bar)
-    this.appendTrack = function (trackNumber, instrumentName, SAMPLE_HEIGHT) {
-        var tr = document.createElement("tr");
-
-        tr.innerHTML = '<td class="trackBox" style="height : ' + SAMPLE_HEIGHT + 'px">' +
-            "<progress class='pisteProgress' id='progress" + trackNumber + "' value='0' max='100' style='width : " + SAMPLE_HEIGHT + "px' ></progress>" +
-            instrumentName + '<div style="float : right;">' +
-            "<button class='mute' id='mute" + trackNumber + "' onclick='muteUnmuteTrack(" + trackNumber + ");'><span class='glyphicon glyphicon-volume-up'></span></button> " +
-            "<button class='solo' id='solo" + trackNumber + "' onclick='soloNosoloTrack(" + trackNumber + ");'><img src='../img/earphones.png' /></button></div>" +
-            "<span id='volspan'><input type='range' class = 'volumeSlider' id='volume" + trackNumber + "' min='0' max = '100' value='100' onchange='setVolumeOfTrackDependingOnSliderValue(" + trackNumber + ");'/></span><td>";
-
-        this.tracks.appendChild(tr);
-    }
+    /*    this.appendTrack = function (trackNumber, instrumentName, SAMPLE_HEIGHT) {
+            var tr = document.createElement("tr");
+    
+            tr.innerHTML = '<td class="trackBox" style="height : ' + SAMPLE_HEIGHT + 'px">' +
+                "<progress class='pisteProgress' id='progress" + trackNumber + "' value='0' max='100' style='width : " + SAMPLE_HEIGHT + "px' ></progress>" +
+                instrumentName + '<div style="float : right;">' +
+                "<button class='mute' id='mute" + trackNumber + "' onclick='muteUnmuteTrack(" + trackNumber + ");'><span class='glyphicon glyphicon-volume-up'></span></button> " +
+                "<button class='solo' id='solo" + trackNumber + "' onclick='soloNosoloTrack(" + trackNumber + ");'><img src='../img/earphones.png' /></button></div>" +
+                "<span id='volspan'><input type='range' class = 'volumeSlider' id='volume" + trackNumber + "' min='0' max = '100' value='100' onchange='setVolumeOfTrackDependingOnSliderValue(" + trackNumber + ");'/></span><td>";
+    
+            this.tracks.appendChild(tr);
+        }*/
 
     // adding a message in the console
-    this.addMessage = function (message) {
-        this.console.innerHTML = this.console.innerHTML + "<br />" + message;
-    }
+    /*    this.addMessage = function (message) {
+            this.console.innerHTML = this.console.innerHTML + "<br />" + message;
+        }*/
 
     this.activeConsoleTab = function () {
         $(this.consoleTab).click();

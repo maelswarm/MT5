@@ -1,14 +1,15 @@
-<!DOCTYPE html>
 <html>
 
 <head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="chrome=1" />
   <title>MT5, the HTML5 multitrack player for musicians</title>
-  <ascript src="http://cwilso.github.io/AudioContext-MonkeyPatch/AudioContextMonkeyPatch.js"></ascript>
+  <!-- get the required files from 3rd party sources -->
+  <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+  <script src="http://cwilso.github.io/AudioContext-MonkeyPatch/AudioContextMonkeyPatch.js"></script>
   <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="js/view.js"></script>
   <script src="js/waveformDrawer.js"></script>
@@ -17,143 +18,100 @@
   <script src="js/buffer-loader.js"></script>
   <script src="js/sound.js"></script>
   <script src="js/jquery.knob.js"></script>
-  <!--<script src="js/knob.js"></script>-->
+  <script src="js/knob.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/canvasArrows.js"></script>
   <script src="js/range-touch.js"></script>
   <script src="js/recorderjs/recorder.js"></script>
-  <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+  <!-- <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" /> -->
   <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 
 <body onload="init();">
+  <div class="masterVolume"></div>
+  <div id="app" style="margin-top:25px;">
+    <div id="masterTools" style="width: 1285px;">
+      <table>
+        <tr>
+          <td style="width:390px; text-align:center;">
+            <button id="bplay" onclick="playAllTracks(-1);" disabled type="button" class="btn btn-default btn-lg">
+              <span class="glyphicon glyphicon-play"></span>
+            </button>
 
-  <div id="app">
+            <button id="bpause" onclick="pauseAllTracks();" disabled type="button" class="btn btn-default btn-lg">
+              <span class="glyphicon glyphicon-pause" style="margin-left: 3px"></span>
+            </button>
 
-    <div id="console">
-      <ul class="nav nav-tabs">
-        <li><a id="consoleTab" href="#home" data-toggle="tab">Console</a></li>
-        <li><a id="waveTab" href="#profile" data-toggle="tab">Wave</a></li>
-        <li><a class="active" href="#help" data-toggle="tab">Help</a></li>
-      </ul>
+            <button id="bstop" onclick="stopAllTracks();" type="button" class="btn btn-default btn-lg"
+              style="display: none;" disabled>
+              <span class="glyphicon glyphicon-stop" style="margin-right: 3px"></span>
+            </button>
+            <!--<button id="bstop" onclick="addNewTrackForRecord();"  type="button" class="btn btn-default btn-lg" disabled>
+                          <span class="glyphicon glyphicon-record"></span>
+                        </button>-->
+            <button id="brecordMix" onclick="toggleRecordMix();" type="button" class="btn btn-default btn-lg"
+              disabled>SAVE<br>MIX
+            </button>
+          </td>
+          <td rowspan="2" style="width:900px; padding-left: 10px; padding-right: 10px;" valign="top">
+            <div id="titleArea">
+              This Is The Track with Title Area
+            </div>
+            <div id="subtitleArea">
+              Subtitle text area is here
+            </div>
+            <div id="additionalTextArea">
+              General text area where lots of additional writing and information can be included. General text area
+              where lots of additional writing and information can be included. General text area where lots of
+              additional writing and information can be included. General text area where lots of additional writing and
+              information can be included. General text area where lots of additional writing and information can be
+              included. General text area where lots of additional writing and information can be included.
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td id="loopBox" style="text-align:center;">
+            <button id="loopStart" onclick="setLoopStart();" type="button" class="btn btn-default btn-lg"
+              disabled>OPEN<br>LOOP
+            </button>
 
-      <!-- Tab panes -->
-      <div class="tab-content">
-        <div class="tab-pane fade in " id="home">
-          <div id="messages">Please choose a song !</div>
-        </div>
-        <div class="tab-pane fade" id="profile">
-          <canvas id="waveCanvas"></canvas>
-        </div>
-        <div class="tab-pane fade in active" id="help">
-          <p>Version 1.0, <a
-              href="http://miageprojet2.unice.fr/index.php?title=Intranet_de_Michel_Buffa/MT5%2C_multitrack_player_for_musicians"
-              target="_blank">Documentation / Manual</a></p>
-          <p><a href="https://github.com/squallooo/MT5" target="_blank">https://github.com/squallooo/MT5</a></p>
+            <button id="loopEnd" onclick="setLoopEnd();" type="button" class="btn btn-default btn-lg"
+              disabled>CLOSE<br>LOOP
+            </button>
 
-          <p>Michel Buffa, main designer</p>
-          <p>and implementer (@micbuffa)</p>
-          <p>Amine Hallili, HTML/CSS layout</p>
-        </div>
-      </div>
+            <button id="loopReset" onclick="resetSelection();" type="button" class="btn btn-default btn-lg"
+              disabled>CLEAR<br>LOOP
+            </button>
+
+            <button onclick="loopOnOff();" id="loopOnOff" type="button" class="btn btn-default btn-lg"
+              disabled>LOOP<br>ON/OFF
+            </button>
+          </td>
+        </tr>
+      </table>
     </div>
-
-    <div id="masterTools">
-      <div style="position : absolute;width : 602px;">
-        <h2 style="text-align : center;">MT5, the HTML5 Multitrack player !</h2>
-
-        <span id="volume">
-          <button id="bsound" onclick="masterMuteUnmute(this);" type="button" class="btn btn-default btn-lg master"
-            style="margin-right: 28px;position: absolute;right: 0;margin-top: 28px;">
-            <span class="glyphicon glyphicon-volume-up"></span>
-          </button>
-          <input id="masterVolume" class="knob volumeSlider masterVolume custom" type="range" min="1" max="100"
-            data-width="100" data-height="100" data-displayInput=false value="100">
-        </span>
-
-        <table style="margin-left: auto; margin-right: auto;">
-          <tr>
-            <td>
-              <button id="bplay" type="button" class="btn btn-default btn-lg" onclick="playAllTracks(-1);" disabled>
-                <span class="glyphicon glyphicon-play"></span>
-              </button>
-
-              <button id="bpause" onclick="pauseAllTracks();" disabled type="button" class="btn btn-default btn-lg">
-                <span class="glyphicon glyphicon-pause"></span>
-              </button>
-
-              <!-- <button id="bstop" onclick="stopAllTracks();" type="button" class="btn btn-default btn-lg" disabled>
-                <span class="glyphicon glyphicon-stop"></span>
-              </button> -->
-              <button id="bstop" onclick="addNewTrackForRecord();" type="button" class="btn btn-default btn-lg">
-                <span class="glyphicon glyphicon-record"></span>
-              </button>
-              <button id="brecordMix" onclick="toggleRecordMix();" type="button" class="btn btn-default btn-lg" style="font-size: 10px;
-padding: 0;" disabled>Record mix
-              </button>
-            </td>
-          </tr>
-          <tr>
-            <td id="loopBox">
-              <button id="loopStart" onclick="setLoopStart();" type="button" class="btn btn-default btn-lg" style="font-size: 10px;
-padding: 0;" disabled>
-                Start Loop
-              </button>
-
-              <button id="loopEnd" onclick="setLoopEnd();" type="button" class="btn btn-default btn-lg" style="font-size: 10px;
-padding: 0;" disabled>
-                End loop
-              </button>
-
-              <button id="loopReset" onclick="resetSelection();" type="button" class="btn btn-default btn-lg" style="font-size: 10px;
-padding: 0;" disabled>
-                Reset loop
-              </button>
-
-              <button onclick="loopOnOff();" id="loopOnOff" type="button" class="btn btn-default btn-lg" disabled>
-                <span class="glyphicon glyphicon-repeat"></span>
-              </button>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div id="songs" class="styled-select" style="display: none;"></div>
-              <br />
-            </td>
-          </tr>
-        </table>
-      </div>
-    </div>
-
-
-    <div class="tracker-wrapper">
-      <div id="time"></div>
-      <div id="tracker"></div>
-      <div id="slider-range"></div>
-    </div>
-    <div id="scroll">
-      <div id="trackControl">
-        <table id="tracks">
-
-
-        </table>
-      </div>
-      <div id="canvass">
-        <div style="position: relative;">
-          <canvas id="myCanvas" width="602" height="400"
-            style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>
-          <canvas id="frontCanvas" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
-        </div>
-      </div>
-    </div>
-
-
   </div>
 
-
-
-
+  <div class="tracker-wrapper">
+    <div id="time"></div>
+    <div id="tracker"></div>
+    <div id="slider-range"></div>
+  </div>
+  <div id="scroll">
+    <span id="trackControl">
+      <table id="tracks">
+      </table>
+    </span>
+    <!--	Wave Form Layer	-->
+    <span id="myCanvass">
+      <canvas id="myCanvas" height="0" width="900"></canvas>
+    </span>
+    <!--	Scroll Cursor Layer	-->
+    <span id="canvass">
+      <canvas id="frontCanvas"></canvas>
+    </span>
+  </div>
 </body>
 
 </html>

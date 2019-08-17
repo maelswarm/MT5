@@ -25,7 +25,7 @@ var selectionForLoop = {
 
 
 // Sample size in pixels
-var SAMPLE_HEIGHT = 75;
+var SAMPLE_HEIGHT = 90;
 
 // Useful for memorizing when we paused the song
 var lastTime = 0;
@@ -52,51 +52,15 @@ function init() {
 
     View.init();
 
-
-    //init loop slider
-
-    $("#slider-range").slider({
-        range: true,
-        min: 1,
-        max: 10000,
-        values: [1, 10000],
-        slide: function (event, ui) {
-            // slide ui.values[ 0 ] + " - $" + ui.values[ 1 ]
-            selectionForLoop.xStart = ((ui.values[0] - 1) / 9999) * window.View.frontCanvas.width;
-            selectionForLoop.xEnd = ((ui.values[1] - 1) / 9999) * window.View.frontCanvas.width;
-            adjustSelectionMarkers();
-        }
-    });
-
-    $("#tracker").slider({
-        range: 'min',
-        min: 1,
-        max: 10000,
-        value: 0,
-        slide: function (event, ui) {
-            if (!currentSong.paused) {
-                wasPaused = false;
-                currentSong.pause();
-            } else {
-                wasPaused = true;
-            }
-            var totalTime = currentSong.getDuration();
-            var startTime = totalTime * ((ui.value - 1) / 9999);
-            currentSong.elapsedTimeSinceStart = startTime;
-            if (!wasPaused) {
-                playAllTracks(startTime);
-            }
-        }
-    });
-
     // Get handles on buttons
     buttonPlay = document.querySelector("#bplay");
     buttonPause = document.querySelector("#bpause");
-    // buttonStop = document.querySelector("#bstop");
+    buttonStop = document.querySelector("#bstop");
     buttonRecordMix = document.querySelector("#brecordMix");
 
     divTrack = document.getElementById("tracks");
     divConsole = document.querySelector("#messages");
+
 
     // The waveform drawer
     waveformDrawer = new WaveformDrawer();
@@ -116,7 +80,7 @@ function init() {
     initLoopABListeners();
 
     // Master volume slider
-    masterVolumeSlider = $('.knob').val();
+
 
     // Init audio context
     context = initAudioContext();
@@ -175,11 +139,49 @@ function init() {
     // loopEnd.addEventListener('mousemove', loopEndUp);
     // loopEnd.addEventListener('touchmove', loopEndUp);
 
-
-    document.querySelector('.masterVolume').addEventListener('input', (e) => {
-        setMasterVolume(e.target.value);
+    $(".masterVolume").slider({
+        range: 'min',
+        min: 0,
+        max: 100,
+        value: 100,
+        slide: function (event, ui) {
+            setMasterVolume(ui.value);
+        }
     });
 
+    $("#slider-range").slider({
+        range: true,
+        min: 1,
+        max: 10000,
+        values: [1, 10000],
+        slide: function (event, ui) {
+            // slide ui.values[ 0 ] + " - $" + ui.values[ 1 ]
+            selectionForLoop.xStart = ((ui.values[0] - 1) / 9999) * window.View.frontCanvas.width;
+            selectionForLoop.xEnd = ((ui.values[1] - 1) / 9999) * window.View.frontCanvas.width;
+            adjustSelectionMarkers();
+        }
+    });
+
+    $("#tracker").slider({
+        range: 'min',
+        min: 1,
+        max: 10000,
+        value: 1,
+        slide: function (event, ui) {
+            if (!currentSong.paused) {
+                wasPaused = false;
+                currentSong.pause();
+            } else {
+                wasPaused = true;
+            }
+            var totalTime = currentSong.getDuration();
+            var startTime = totalTime * ((ui.value - 1) / 9999);
+            currentSong.elapsedTimeSinceStart = startTime;
+            if (!wasPaused) {
+                playAllTracks(startTime);
+            }
+        }
+    });
 
     loadSong('Londres Appelle');
 
@@ -336,7 +338,7 @@ function drawTrack(decodedBuffer, trackNumber) {
     var trackName = currentSong.tracks[trackNumber].name;
     //trackName = trackName.slice(trackName.lastIndexOf("/")+1, trackName.length-4);
 
-    waveformDrawer.init(decodedBuffer, View.masterCanvas, '#83E83E');
+    waveformDrawer.init(decodedBuffer, View.masterCanvas, '#0ea1d5');
     var x = 0;
     var y = trackNumber * SAMPLE_HEIGHT;
     // First parameter = Y position (top left corner)
@@ -348,7 +350,7 @@ function drawTrack(decodedBuffer, trackNumber) {
 
     View.masterCanvasContext.font = '14pt Arial';
     View.masterCanvasContext.fillStyle = 'white';
-    View.masterCanvasContext.fillText(trackName, x + 10, y + 20);
+    //View.masterCanvasContext.fillText(trackName, x + 10, y + 20);
 }
 
 function finishedLoading(bufferList) {
@@ -383,8 +385,6 @@ function finishedLoading(bufferList) {
 // ######### SONGS
 
 
-// ##### TRACKS #####
-
 function loadSong(songName) {
     resetAllBeforeLoadingANewSong();
 
@@ -404,19 +404,23 @@ function loadSong(songName) {
         // resize canvas depending on number of samples
         resizeSampleCanvas(song.instruments.length);
 
-        // for eah instrument/track in the song
+        // for each instrument/track in the song
         song.instruments.forEach(function (instrument, trackNumber) {
             // Let's add a new track to the current song for this instrument
             currentSong.addTrack(instrument);
 
             // Render HTMl
             var span = document.createElement('tr');
-            span.innerHTML = '<td class="trackBox" style="height : ' + SAMPLE_HEIGHT + 'px">' +
-                "<progress class='pisteProgress' id='progress" + trackNumber + "' value='0' max='100' style='width : " + SAMPLE_HEIGHT + "px' ></progress>" +
-                instrument.name + '<div style="float : right;">' +
-                "<button class='mute' id='mute" + trackNumber + "' onclick='muteUnmuteTrack(" + trackNumber + ");'><span class='glyphicon glyphicon-volume-up'></span></button> " +
-                "<button class='solo' id='solo" + trackNumber + "' onclick='soloNosoloTrack(" + trackNumber + ");'><img src='../img/earphones.png' /></button></div>" +
+            span.innerHTML = '<td class="trackBox" style="height: 90px; position: relative;">' +
+                '<div style="color:#fff; position:relative; top:-8px; left: 20px;">' + instrument.name + '</div>' + '<div>' +
+                "<button class='mute' id='mute" + trackNumber + "' onclick='muteUnmuteTrack(" + trackNumber + ");' style='font-weight:bold;float:left; position:relative; top: 8px; left: 275px;'>M</button> " +
+                "<button class='solo' id='solo" + trackNumber + "' onclick='soloNosoloTrack(" + trackNumber + ");' style='font-weight:bold;float:left; position:relative; top: 8px; left: 283px;'>S</button></div>" +
                 "<span id='volspan'><input type='range' class = 'volumeSlider custom' id='volume" + trackNumber + "' min='0' max = '100' value='100' oninput='setVolumeOfTrackDependingOnSliderValue(" + trackNumber + ");'/></span><td>";
+
+            /*<button id="loopReset"  onclick="resetSelection();" type="button" class="btn btn-default btn-lg" style="font-size: 10px;
+            padding: 0;line-height:1.5" disabled>CLEAR<br>LOOP
+                                </button>*/
+
 
             divTrack.appendChild(span);
 
@@ -495,6 +499,7 @@ function animateTime() {
         // Draw the time on the front canvas
         currentTime = context.currentTime;
         var delta = currentTime - lastTime;
+        console.log(delta);
 
 
         var totalTime;
@@ -513,7 +518,7 @@ function animateTime() {
             currentXTimeline = currentSong.elapsedTimeSinceStart * window.View.masterCanvas.width / totalTime;
 
             // draw frequencies that dance with the music
-            drawFrequencies();
+            //drawFrequencies();
 
             // Draw time bar
             View.frontCanvasContext.strokeStyle = "white";
@@ -527,6 +532,7 @@ function animateTime() {
                 currentSong.elapsedTimeSinceStart += delta;
                 lastTime = currentTime;
                 let currTime = currentSong.elapsedTimeSinceStart / totalTime;
+                console.log($("#tracker").slider('value'));
                 $("#tracker").slider('value', currTime * 10000);
 
             }
@@ -560,18 +566,18 @@ function animateTime() {
 }
 
 function showWelcomeMessage() {
-    View.frontCanvasContext.save();
-    View.frontCanvasContext.font = '14pt Arial';
-    View.frontCanvasContext.fillStyle = 'white';
-    View.frontCanvasContext.fillText('Welcome to MT5, start by choosing a song ', 50, 200);
-    View.frontCanvasContext.fillText('in this drop down menu! ', 50, 220);
-    View.frontCanvasContext.fillText('Documentation and HowTo in the ', 315, 100);
-    View.frontCanvasContext.fillText('first link of the Help tab there! ', 315, 120);
+    // View.frontCanvasContext.save();
+    // View.frontCanvasContext.font = '14pt Arial';
+    // View.frontCanvasContext.fillStyle = 'white';
+    // View.frontCanvasContext.fillText('Welcome to MT5, start by choosing a song ', 50, 200);
+    // View.frontCanvasContext.fillText('in this drop down menu! ', 50, 220);
+    // View.frontCanvasContext.fillText('Documentation and HowTo in the ', 315, 100);
+    // View.frontCanvasContext.fillText('first link of the Help tab there! ', 315, 120);
 
-    // Draws an arrow in direction of the drop down menu
-    // x1, y1, x2, y2, width of arrow, color
-    drawArrow(View.frontCanvasContext, 180, 170, 10, 10, 10, 'lightGreen');
-    drawArrow(View.frontCanvasContext, 450, 80, 450, 10, 10, 'lightGreen');
+    // // Draws an arrow in direction of the drop down menu
+    // // x1, y1, x2, y2, width of arrow, color
+    // drawArrow(View.frontCanvasContext, 180, 170, 10, 10, 10, 'lightGreen');
+    // drawArrow(View.frontCanvasContext, 450, 80, 450, 10, 10, 'lightGreen');
 
     View.frontCanvasContext.restore();
 }
@@ -588,62 +594,62 @@ function drawSelection() {
 }
 
 
-function drawFrequencies() {
-    View.waveCanvasContext.save();
-    //View.waveCanvasContext.clearRect(0, 0, View.waveCanvas.width, View.waveCanvas.height);
-    View.waveCanvasContext.fillStyle = "rgba(0, 0, 0, 0.05)";
-    View.waveCanvasContext.fillRect(0, 0, View.waveCanvas.width, View.waveCanvas.height);
+// function drawFrequencies() {
+//     View.waveCanvasContext.save();
+//     //View.waveCanvasContext.clearRect(0, 0, View.waveCanvas.width, View.waveCanvas.height);
+//     View.waveCanvasContext.fillStyle = "rgba(0, 0, 0, 0.05)";
+//     View.waveCanvasContext.fillRect(0, 0, View.waveCanvas.width, View.waveCanvas.height);
 
-    var freqByteData = new Uint8Array(currentSong.analyserNode.frequencyBinCount);
-    currentSong.analyserNode.getByteFrequencyData(freqByteData);
-    var nbFreq = freqByteData.length;
+//     var freqByteData = new Uint8Array(currentSong.analyserNode.frequencyBinCount);
+//     currentSong.analyserNode.getByteFrequencyData(freqByteData);
+//     var nbFreq = freqByteData.length;
 
-    var SPACER_WIDTH = 5;
-    var BAR_WIDTH = 2;
-    var OFFSET = 100;
-    var CUTOFF = 23;
-    var HALF_HEIGHT = View.waveCanvas.height / 2;
-    var numBars = 1.7 * Math.round(View.waveCanvas.width / SPACER_WIDTH);
+//     var SPACER_WIDTH = 5;
+//     var BAR_WIDTH = 2;
+//     var OFFSET = 100;
+//     var CUTOFF = 23;
+//     var HALF_HEIGHT = View.waveCanvas.height / 2;
+//     var numBars = 1.7 * Math.round(View.waveCanvas.width / SPACER_WIDTH);
 
-    View.waveCanvasContext.lineCap = 'round';
+//     View.waveCanvasContext.lineCap = 'round';
 
-    for (var i = 0; i < numBars; ++i) {
-        var magnitude = 0.3 * freqByteData[Math.round((i * nbFreq) / numBars)];
+//     for (var i = 0; i < numBars; ++i) {
+//         var magnitude = 0.3 * freqByteData[Math.round((i * nbFreq) / numBars)];
 
-        View.waveCanvasContext.fillStyle = "hsl( " + Math.round((i * 360) / numBars) + ", 100%, 50%)";
-        View.waveCanvasContext.fillRect(i * SPACER_WIDTH, HALF_HEIGHT, BAR_WIDTH, -magnitude);
-        View.waveCanvasContext.fillRect(i * SPACER_WIDTH, HALF_HEIGHT, BAR_WIDTH, magnitude);
+//         View.waveCanvasContext.fillStyle = "hsl( " + Math.round((i * 360) / numBars) + ", 100%, 50%)";
+//         View.waveCanvasContext.fillRect(i * SPACER_WIDTH, HALF_HEIGHT, BAR_WIDTH, -magnitude);
+//         View.waveCanvasContext.fillRect(i * SPACER_WIDTH, HALF_HEIGHT, BAR_WIDTH, magnitude);
 
-    }
+//     }
 
-    // Draw animated white lines top
-    View.waveCanvasContext.strokeStyle = "white";
-    View.waveCanvasContext.beginPath();
+//     // Draw animated white lines top
+//     View.waveCanvasContext.strokeStyle = "white";
+//     View.waveCanvasContext.beginPath();
 
-    for (var i = 0; i < numBars; ++i) {
-        var magnitude = 0.3 * freqByteData[Math.round((i * nbFreq) / numBars)];
-        if (i > 0) {
-            //console.log("line lineTo "  + i*SPACER_WIDTH + ", " + -magnitude);
-            View.waveCanvasContext.lineTo(i * SPACER_WIDTH, HALF_HEIGHT - magnitude);
-        } else {
-            //console.log("line moveto "  + i*SPACER_WIDTH + ", " + -magnitude);
-            View.waveCanvasContext.moveTo(i * SPACER_WIDTH, HALF_HEIGHT - magnitude);
-        }
-    }
-    for (var i = 0; i < numBars; ++i) {
-        var magnitude = 0.3 * freqByteData[Math.round((i * nbFreq) / numBars)];
-        if (i > 0) {
-            //console.log("line lineTo "  + i*SPACER_WIDTH + ", " + -magnitude);
-            View.waveCanvasContext.lineTo(i * SPACER_WIDTH, HALF_HEIGHT + magnitude);
-        } else {
-            //console.log("line moveto "  + i*SPACER_WIDTH + ", " + -magnitude);
-            View.waveCanvasContext.moveTo(i * SPACER_WIDTH, HALF_HEIGHT + magnitude);
-        }
-    }
-    View.waveCanvasContext.stroke();
+//     for (var i = 0; i < numBars; ++i) {
+//         var magnitude = 0.3 * freqByteData[Math.round((i * nbFreq) / numBars)];
+//         if (i > 0) {
+//             //console.log("line lineTo "  + i*SPACER_WIDTH + ", " + -magnitude);
+//             View.waveCanvasContext.lineTo(i * SPACER_WIDTH, HALF_HEIGHT - magnitude);
+//         } else {
+//             //console.log("line moveto "  + i*SPACER_WIDTH + ", " + -magnitude);
+//             View.waveCanvasContext.moveTo(i * SPACER_WIDTH, HALF_HEIGHT - magnitude);
+//         }
+//     }
+//     for (var i = 0; i < numBars; ++i) {
+//         var magnitude = 0.3 * freqByteData[Math.round((i * nbFreq) / numBars)];
+//         if (i > 0) {
+//             //console.log("line lineTo "  + i*SPACER_WIDTH + ", " + -magnitude);
+//             View.waveCanvasContext.lineTo(i * SPACER_WIDTH, HALF_HEIGHT + magnitude);
+//         } else {
+//             //console.log("line moveto "  + i*SPACER_WIDTH + ", " + -magnitude);
+//             View.waveCanvasContext.moveTo(i * SPACER_WIDTH, HALF_HEIGHT + magnitude);
+//         }
+//     }
+//     View.waveCanvasContext.stroke();
 
-    View.waveCanvasContext.restore();
-}
+//     View.waveCanvasContext.restore();
+// }
 
 function drawSampleImage(imageURL, trackNumber, trackName) {
     var image = new Image();
@@ -740,7 +746,7 @@ function stopAllTracks() {
 function pauseAllTracks() {
     currentSong.pause();
     currentSong.paused = true;
-    lastTime = context.currentTime;
+    elapsedTimeSinceStart = context.currentTime;
     buttonPlay.style.display = '';
     buttonPause.style.display = '';
 }
@@ -754,13 +760,12 @@ function pauseAllTracks() {
 function setMasterVolume(val) {
     if (currentSong !== undefined) {
         // If we are here, then we need to reset the mute all button
-        document.querySelector("#bsound").innerHTML = '<span class="glyphicon glyphicon-volume-up"></span>';
         var fraction;
 
         // set its volume to the current value of the master volume knob
         if (val === undefined) {
-            console.log("calling setMasterVolume without parameters, let's take the value from GUI");
-            fraction = $("#masterVolume").val() / 100;
+            //            console.log("calling setMasterVolume without parameters, let's take the value from GUI");
+            fraction = $(".masterVolume").slider('value') / 100;
         } else {
             fraction = val / 100;
         }
@@ -769,7 +774,7 @@ function setMasterVolume(val) {
         // sound as good.
         currentSong.setVolume(fraction * fraction);
 
-        console.log("volume : " + currentSong.volume);
+        //        console.log("volume : " + currentSong.volume);
     }
 }
 
@@ -788,19 +793,19 @@ function soloNosoloTrack(trackNumber) {
         // we were not in solo mode, let's go in solo mode
         currentTrack.solo = true;
         // Let's change the icon
-        s.innerHTML = "<img src='../img/noearphones.png' />";
+        //s.innerHTML = "<img src='../img/noearphones.png' />";
     } else {
         // we were in solo mode, let's go to the "no solo" mode
         currentTrack.solo = false;
         // Let's change the icon
-        s.innerHTML = "<img src='../img/earphones.png' />";
+        //s.innerHTML = "<img src='../img/earphones.png' />";
     }
 
     // In all cases we remove the mute state of the curent track
     currentTrack.muted = false;
     $(m).removeClass("activated");
     // Let's change the icon
-    m.innerHTML = "<span class='glyphicon glyphicon-volume-up'></span>";
+    //m.innerHTML = "<span class='glyphicon glyphicon-volume-up'></span>";
 
     // Adjust the volumes depending on all mute/solo states
     currentSong.setTrackVolumesDependingOnMuteSoloStatus();
@@ -819,18 +824,18 @@ function muteUnmuteTrack(trackNumber) {
         // Track was not muted, let's mute it!
         currentTrack.muted = true;
         // let's change the button's class
-        m.innerHTML = "<span class='glyphicon glyphicon-volume-off'></span>";
+        //m.innerHTML = "<span class='glyphicon glyphicon-volume-off'></span>";
     } else {
         // track was muted, let's unmute it!
         currentTrack.muted = false;
-        m.innerHTML = "<span class='glyphicon glyphicon-volume-up'></span>";
+        //m.innerHTML = "<span class='glyphicon glyphicon-volume-up'></span>";
     }
 
     // In all cases we must put the track on "no solo" mode
     currentTrack.solo = false;
     $(s).removeClass("activated");
     // Let's change the icon
-    s.innerHTML = "<img src='../img/earphones.png' />";
+    //s.innerHTML = "<img src='../img/earphones.png' />";
 
     // adjust track volumes dependinf on all mute/solo states
     currentSong.setTrackVolumesDependingOnMuteSoloStatus();
